@@ -1,0 +1,19 @@
+# Fastfile
+default_platform(:ios)
+
+platform :ios do
+  desc "Build the Flutter app"
+  lane :build do
+    sh("flutter build ios --release --no-codesign")
+  end
+
+  desc "Deploy to the Apple App Store"
+  lane :deploy do
+    build
+    upload_to_app_store(
+      username: "apple@developer.com", # Your Apple Developer account email
+      skip_metadata: true,
+      skip_screenshots: true
+    )
+  end
+end

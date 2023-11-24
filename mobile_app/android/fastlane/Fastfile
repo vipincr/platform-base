@@ -1,0 +1,19 @@
+# Fastfile
+default_platform(:android)
+
+platform :android do
+  desc "Build the Flutter app"
+  lane :build do
+    sh("flutter build apk --release")
+  end
+
+  desc "Deploy to the Google Play Store"
+  lane :deploy do
+    build
+    upload_to_play_store(
+      track: 'beta', # Change to 'production' for production release
+      json_key: 'path/to/your/google-play-store-key.json',
+      package_name: 'com.example.platform_base'
+    )
+  end
+end

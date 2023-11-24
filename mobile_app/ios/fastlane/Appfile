@@ -1,0 +1,5 @@
+# Appfile
+apple_id "apple@developer.com" # Your Apple ID
+app_identifier "com.example.platform_base" # The bundle identifier of your app
+itc_team_id "123456789" # iTunes Connect Team ID (optional, only if you have multiple teams)
+team_id "ABCDEFG123" # Developer Portal Team ID (optional, only if you have multiple teams)
