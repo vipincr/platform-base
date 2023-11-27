@@ -8,6 +8,9 @@ from flask_graphql import GraphQLView
 from .dramatiq_setup import broker  # Import Dramatiq broker setup
 from .settings import Config  # Import configuration settings
 
+import asyncio
+import websockets
+
 # Initialize Flask application with external settings
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -32,6 +35,23 @@ app.add_url_rule(
     )
 )
 
+# WebSocket server setup
+connected = set()
+
+async def chat_server(websocket, path):
+    # Register.
+    connected.add(websocket)
+    try:
+        async for message in websocket:
+            # Broadcasting incoming messages to all connected clients
+            await asyncio.wait([ws.send(message) for ws in connected if ws != websocket])
+    finally:
+        # Unregister.
+        connected.remove(websocket)
+
+# Running the WebSocket server
+start_server = websockets.serve(chat_server, "localhost", 6789)
+
 # Start Dramatiq worker with Flask app
 @app.before_first_request
 def start_dramatiq():
@@ -42,5 +62,8 @@ def start_dramatiq():
 def hello_world():
     return 'Hello, World from Platform-Base!'
 
+# Run WebSocket server along with Flask application
 if __name__ == '__main__':
+    asyncio.get_event_loop().run_until_complete(start_server)
+    asyncio.get_event_loop().run_forever()
     app.run(debug=app.config['DEBUG'])  # Debug mode based on config
